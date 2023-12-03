@@ -6,8 +6,7 @@ from photo_redact import create_classic_mem, create_gigachad_mem, create_user_me
 
 # добавь библиотеку profanity-filter
 
-# спрячь токен
-token='6250744722:AAHpPDqy93oe9W0UmLPOezr_Mb8tsVHPhsE'
+token=token
 bot=telebot.TeleBot(token)
 
 # TODO вывести класс в другой файл
