@@ -7,7 +7,7 @@ from photo_redact import create_classic_mem, create_gigachad_mem, create_user_me
 # добавь библиотеку profanity-filter
 
 # спрячь токен
-token='6250744722:AAHpPDqy93oe9W0UmLPOezr_Mb8tsVHPhsE'
+token='6804340252:AAGUiRQlHb-URlFheqjL0qUYOopQgUX8TAY'
 bot=telebot.TeleBot(token)
 
 # TODO вывести класс в другой файл
@@ -35,7 +35,6 @@ class Mem():
 
 mems = dict()
 user_mem_type = dict()
-# TODO сделать словарь с типами мемов для каждого пользователя
 
 def download_photo(fileID, chat_id):
     file_info = bot.get_file(fileID)
@@ -43,7 +42,7 @@ def download_photo(fileID, chat_id):
     with open(f"pics\\{chat_id}_img.jpg", 'wb') as new_file:
         new_file.write(downloaded_file)
 
-    return f"pics\{chat_id}_img.jpg"
+    return f"pics\\{chat_id}_img.jpg"
 
 def create_choose_type():
     markup = types.ReplyKeyboardMarkup(True)
@@ -57,40 +56,45 @@ def create_choose_type():
 
 @bot.message_handler(commands=['start'])
 def start(message):
+    user_mem = Mem('Классика', False, 'Новый пользователь! ПРИвет!', f"pics\\{message.chat.id}_img.jpg")
+    mems[message.chat.id] = user_mem
+
     markup = create_choose_type()
     bot.send_message(message.chat.id, 'Добро пожаловать. Я бот для создания мемов. Выберите тип мема, отправьте фото с подписью. А взамен получите созданный мною мем', reply_markup = markup)
     
 
-@bot.message_handler(commands = ['Свой_мем'])
+@bot.message_handler(commands = ['Свой_мем', 'my_mem'])
 def users_mem(message):
     user_mem_type[message.chat.id] = 'Свой мем'
     bot.send_message(message.chat.id, 'отправьте фото и подпись')
 
-@bot.message_handler(commands = ['Классика'])
+@bot.message_handler(commands = ['Классика', 'classic'])
 def users_mem(message):
     user_mem_type[message.chat.id] = 'Классика'
     bot.send_message(message.chat.id, 'отправьте фото и подпись')
 
-@bot.message_handler(commands = ['Гигачад'])
+@bot.message_handler(commands = ['Гигачад', 'gigachad'])
 def users_mem(message):
     user_mem_type[message.chat.id] = 'Гигачад'
+    
     bot.send_message(message.chat.id, 'отправьте подпись')
 
-@bot.message_handler(commands=['создать'])
+@bot.message_handler(commands=['создать', 'Создать', 'create'])
 def text_hand(message):
     if message.chat.id not in user_mem_type.keys():
-        bot.send_message(message.chat.id, "ERROR: Вы не выбрали тип мема",)
+        bot.send_message(message.chat.id, "ERROR: Вы не выбрали тип мема, держите")
         return 
     
     mem = mems[message.chat.id]
     mem.create_mem()
 
     with open('pics\\new.jpg', 'rb') as mem:
-        bot.send_document(message.chat.id, document = mem)
+        # bot.send_document(message.chat.id, document = mem)
+        bot.send_photo(message.chat.id, mem, "Держи мем")
 
     print(message.from_user.first_name)
     markup = create_choose_type()
-    bot.send_message(message.chat.id, 'Выберите слудеющий тип мема', markup)
+    bot.send_message(message.chat.id, 'Выберите слудеющий тип мема', reply_markup=markup)
 
 
 
@@ -108,13 +112,12 @@ def photo(message):
         bot.send_message(message.chat.id, "ERROR: ВЫбранный тип мема не подходит",)
         return
     
-    user_mem = Mem(user_mem_type[message.chat.id], True, message.text, path)
+    user_mem = Mem(user_mem_type[message.chat.id], True, message.caption, path)
     mems[message.chat.id] = user_mem
 
     markup = types.ReplyKeyboardMarkup(True).add(types.KeyboardButton('/создать'))
     bot.send_message(message.chat.id, "Мем готов к созданию", reply_markup = markup)
  
-#  TODO сделать проверку на выбранный тип мема. Сделать хендлер на просто текст и тип мема - гигачад
 @bot.message_handler(content_types=['text'])
 def handle_text(message):
     if message.text[0] =='/': return
@@ -123,6 +126,10 @@ def handle_text(message):
     if current_mem.isUserPhoto: 
         current_mem.text = message.text
         bot.send_message(chat_id= message.chat.id, text='текст изменен')
+    else:
+        markup = types.ReplyKeyboardMarkup(True)
+        markup.add(types.KeyboardButton("/create"))
+        bot.send_message(message.chat.id, 'Мем готов к созданию', reply_markup= markup)
     
 
     

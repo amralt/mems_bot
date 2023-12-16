@@ -1,7 +1,6 @@
 from PIL import Image
 from PIL import ImageFont
 from PIL import ImageDraw
-import os
 font = ImageFont.truetype("fonts\\TimesNewRomanRegular.ttf", size=72)
 
 
@@ -77,9 +76,9 @@ def create_user_mem(text = 'дадададада', path = 'pics\\gigachad.jpg'):
         font_color = '#FFFFFF'
     
     text_lines = create_lines(text)
-    print(text_lines )
 
-    text_y = y - 60 
+    text_y = y - 60
+    print(text_y, y) 
     for line in text_lines[::-1]:
         draw_text = ImageDraw.Draw(image)
         draw_text.text((x*0.03, text_y), text = line, font = font, fill = font_color)
